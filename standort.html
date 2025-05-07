@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Standort anzeigen</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2rem;
+        background: #f4f4f4;
+      }
+      button {
+        margin-top: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      #coords {
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        background: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+      }
+      #copyBtn {
+        display: none;
+      }
+      a {
+        color: #0077cc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Standort ermitteln</h1>
+    <button onclick="getLocation()">Standort abrufen</button>
+    <div id="coords">Noch kein Standort abgerufen.</div>
+    <button id="copyBtn" onclick="copyToClipboard()">
+      In Zwischenablage kopieren
+    </button>
+
+    <script>
+      let currentCoords = "";
+
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition, showError, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          });
+        } else {
+          document.getElementById("coords").textContent =
+            "Geolocation wird von diesem Browser nicht unterstützt.";
+        }
+      }
+
+      function showPosition(position) {
+        const lat = position.coords.latitude.toFixed(6);
+        const lon = position.coords.longitude.toFixed(6);
+        const accuracy = Math.round(position.coords.accuracy); // in Metern
+
+        currentCoords = `Breite: ${lat}, Länge: ${lon}`;
+
+        const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+        document.getElementById(
+          "coords"
+        ).innerHTML = `<strong>Koordinaten:</strong> ${lat}, ${lon}<br>
+         <strong>Genauigkeit:</strong> ±${accuracy} Meter<br>
+         <strong>Karte:</strong> <a href="${googleMapsLink}" target="_blank">Auf Google Maps anzeigen</a>`;
+
+        document.getElementById("copyBtn").style.display = "inline-block";
+      }
+
+      function showError(error) {
+        let message = "Unbekannter Fehler";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            message =
+              "Benutzer hat die Anfrage zur Standortermittlung abgelehnt.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message = "Standortinformationen sind nicht verfügbar.";
+            break;
+          case error.TIMEOUT:
+            message =
+              "Die Anforderung zur Standortermittlung hat zu lange gedauert.";
+            break;
+        }
+        document.getElementById("coords").textContent = message;
+      }
+
+      function copyToClipboard() {
+        navigator.clipboard.writeText(currentCoords).then(
+          () => {
+            alert("Koordinaten wurden in die Zwischenablage kopiert!");
+          },
+          () => {
+            alert("Fehler beim Kopieren.");
+          }
+        );
+      }
+    </script>
+  </body>
+</html>
