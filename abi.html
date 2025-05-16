@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abi '25</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" />
+    <style>
+        /* Benutzerdefiniertes CSS für die Pfeile und sanfte Übergänge */
+        .arrow-up, .arrow-down {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: black;
+            cursor: pointer;
+            z-index: 10;
+            -webkit-tap-highlight-color: transparent; /* Verhindert das Hervorheben bei Berührung */
+        }
+        .arrow-up {
+            top: 1rem;
+        }
+        .arrow-down {
+            bottom: 1rem;
+        }
+        .section {
+            scroll-snap-align: start;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        html, body {
+            scroll-behavior: smooth;
+            overflow-y: auto;
+            scrollbar-width: none; /* Verbirgt die Scrollbar in Firefox */
+            -ms-overflow-style: none; /* Verbirgt die Scrollbar im Internet Explorer und Edge */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Verbirgt die Scrollbar in Chrome, Safari und Opera */
+        }
+        .accent-line {
+            border-bottom: 2px solid #FFDFDF;
+            width: 50%;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-white text-black font-sans">
+
+    <div class="arrow-up">↑</div>
+
+    <section id="section1" class="section">
+        <h2 class="text-2xl font-semibold mb-4">Spendenfortschritt</h2>
+        <div class="w-64 h-64 relative">
+            <canvas id="donation-chart"></canvas>
+            <div id="progress-text" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+                <span class="font-bold text-xl"></span>%
+            </div>
+        </div>
+        <p class="mt-4 text-gray-600">Aktuell gesammelt: 2.800 € von 10.000 €</p>
+    </section>
+
+    <section id="section2" class="section">
+        <h2 class="text-2xl font-semibold mb-4">Spenden</h2>
+        <div class="accent-line"></div>
+        <h3 class="text-xl italic mb-4 text-center">Schließe dich unserer Reise an</h3>
+        <div id="stripe-form-container">
+            <div id="donate-button-container">
+                <div id="donate-button"></div>
+                <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+                <script>
+                    PayPal.Donation.Button({
+                    env:'production',
+                    hosted_button_id:'PNW72Z59BSSSW',
+                    image: {
+                    src:'https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donateCC_LG.gif',
+                    alt:'Spenden mit dem PayPal-Button',
+                    title:'PayPal - The safer, easier way to pay online!',
+                    }
+                    }).render('#donate-button');
+                </script>
+            </div>
+        </div>
+        <div id="paypal-button-container" class="mt-6"></div>
+    </section>
+
+    <section id="section3" class="section">
+        <h2 class="text-2xl font-semibold mb-4">Über uns</h2>
+        <div class="accent-line"></div>
+        <p class="text-lg text-gray-700 text-center">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+    </section>
+
+    <div class="arrow-down">↓</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Element 1
+
+            const sections = document.querySelectorAll('.section');
+            const arrowUp = document.querySelector('.arrow-up');
+            const arrowDown = document.querySelector('.arrow-down');
+            let currentSectionIndex = 0;
+            const progressTextElement = document.getElementById('progress-text').querySelector('span');
+
+            const scrollToSection = (index) => {
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+                currentSectionIndex = index;
+                updateArrowVisibility();
+            };
+
+            const updateArrowVisibility = () => {
+                arrowUp.style.display = currentSectionIndex > 0 ? 'block' : 'none';
+                arrowDown.style.display = currentSectionIndex < sections.length - 1 ? 'block' : 'none';
+            };
+
+            arrowUp.addEventListener('click', () => {
+                if (currentSectionIndex > 0) {
+                    scrollToSection(currentSectionIndex - 1);
+                }
+            });
+
+            arrowDown.addEventListener('click', () => {
+                if (currentSectionIndex < sections.length - 1) {
+                    scrollToSection(currentSectionIndex + 1);
+                }
+            });
+
+            // Initial visibility update
+            updateArrowVisibility();
+
+            // Scroll-Snap-Punkte aktivieren
+            document.documentElement.style.scrollSnapType = 'y mandatory';
+
+            // Flowbite Chart Integration (Kreisdiagramm)
+            const donationChartCanvas = document.getElementById('donation-chart');
+            if (donationChartCanvas) {
+                const ctx = donationChartCanvas.getContext('2d');
+                const collected = 28000;
+                const goal = 10000;
+                const percentage = (collected / goal) * 100;
+                const remainingPercentage = 100 - percentage;
+
+                // Prozentzahl im Zentrum aktualisieren
+                if (progressTextElement) {
+                    progressTextElement.textContent = percentage.toFixed(0);
+                }
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [percentage, remainingPercentage],
+                            backgroundColor: ['#a10b0b', '#FFDFDF'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        cutout: '80%',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (context.dataIndex === 0) {
+                                            return `Gesammelt: ${collected} € (${percentage.toFixed(2)}%)`;
+                                        } else {
+                                            return `Verbleibend: ${goal - collected} € (${remainingPercentage.toFixed(2)}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
