@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiver Leitfaden zum Selbstmanagement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Calm Academia" (bg-slate-50, text-slate-800, accent: teal-600, highlight: amber-500) -->
+    <!-- Application Structure Plan: Die Anwendung ist in drei thematische Hauptbereiche gegliedert: 1. Grundlagen, 2. Herausforderungen und 3. Werkzeuge. Diese Struktur wurde gewählt, um den Nutzer von grundlegenden Theorien (Motivation, Flow) über typische Probleme (Prokrastination) zu konkreten, anwendbaren Lösungen (Routinen, Reflexion) zu führen. Dieser logische Aufbau fördert das Verständnis, indem er Wissen schrittweise aufbaut. Die Navigation erfolgt über eine Navigationsleiste. Der Höhepunkt ist eine interaktive Synthese, die das Kernkonzept – die Balance zwischen Autonomie und Struktur – visualisiert. Diese Struktur ist benutzerfreundlicher als eine starre Liste, da sie einen narrativen Lernpfad schafft. -->
+    <!-- Visualization & Content Choices: 1. Motivationstheorie (SDT): Ziel: Informieren -> Viz: Interaktives Balkendiagramm (Chart.js) -> Interaktion: Klick auf Balken zeigt Details -> Begründung: Macht die drei Säulen der Theorie greifbar und fördert die aktive Auseinandersetzung. 2. Flow-Zustand: Ziel: Organisieren -> Viz: HTML/Tailwind 2x2-Grid -> Interaktion: Hover über Quadranten zeigt Zustandsbeschreibung -> Begründung: Klassische, intuitive Darstellung des Modells, die durch Hover-Effekte ohne Klicks verständlich wird. 3. Prokrastination: Ziel: Vergleichen -> Viz: HTML-Cards mit Buttons -> Interaktion: Klick auf Button wechselt den Kontext (selbst-/fremdgesteuert) -> Begründung: Direkter Vergleich wird ermöglicht, Fokus wird auf einen Kontext gelenkt. 4. Balance-Modell (Struktur/Autonomie): Ziel: Synthese/Beziehung aufzeigen -> Viz: HTML/CSS-Waage & Doughnut-Chart (Chart.js) -> Interaktion: Buttons simulieren Ungleichgewicht und aktualisieren Chart und Waage -> Begründung: Starke visuelle Metapher, die die zentrale These des Reports einprägsam vermittelt. Alle Visualisierungen nutzen Canvas oder reines HTML/CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+            color: #1e293b; /* text-slate-800 */
+        }
+        .nav-link {
+            transition: color 0.2s, border-bottom-color 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0d9488; /* text-teal-600 */
+            border-bottom-color: #0d9488;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .balance-scale-base {
+            width: 100%;
+            height: 12px;
+            background-color: #334155; /* bg-slate-700 */
+            border-radius: 6px;
+            position: relative;
+        }
+        .balance-scale-arm {
+            width: 110%;
+            height: 8px;
+            background-color: #475569; /* bg-slate-600 */
+            position: absolute;
+            left: -5%;
+            top: -20px;
+            border-radius: 4px;
+            transition: transform 0.5s ease-in-out;
+            transform-origin: center center;
+        }
+        .balance-scale-pan {
+            width: 80px;
+            height: 20px;
+            border: 3px solid #475569;
+            border-top: none;
+            border-radius: 0 0 40px 40px;
+            position: absolute;
+            bottom: 5px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl md:text-2xl font-bold text-teal-700">Self-Management</h1>
+                <div class="hidden sm:flex items-center space-x-8">
+                    <a href="#grundlagen" class="nav-link text-sm font-medium text-slate-600 pb-1">Grundlagen</a>
+                    <a href="#herausforderungen" class="nav-link text-sm font-medium text-slate-600 pb-1">Herausforderungen</a>
+                    <a href="#werkzeuge" class="nav-link text-sm font-medium text-slate-600 pb-1">Werkzeuge</a>
+                    <a href="#empfehlungen" class="nav-link text-sm font-medium text-slate-600 pb-1">Empfehlungen</a>
+                </div>
+                <div class="sm:hidden">
+                    <button id="menu-btn" class="text-slate-600 hover:text-teal-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="hidden sm:hidden">
+            <a href="#grundlagen" class="block py-2 px-4 text-sm text-slate-600 hover:bg-teal-50">Grundlagen</a>
+            <a href="#herausforderungen" class="block py-2 px-4 text-sm text-slate-600 hover:bg-teal-50">Herausforderungen</a>
+            <a href="#werkzeuge" class="block py-2 px-4 text-sm text-slate-600 hover:bg-teal-50">Werkzeuge</a>
+            <a href="#empfehlungen" class="block py-2 px-4 text-sm text-slate-600 hover:bg-teal-50">Empfehlungen</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Die Kunst der freien Projektarbeit meistern</h2>
+            <p class="max-w-3xl mx-auto text-slate-600 text-lg">
+                In Phasen flexibler, selbstgesteuerter Arbeit liegt eine große Chance – aber auch eine Herausforderung. Dieser interaktive Leitfaden entschlüsselt die Psychologie hinter Motivation, Planung und Prokrastination und gibt Ihnen die Werkzeuge, um Ihre Projekte erfolgreich und mit Wohlbefinden umzusetzen.
+            </p>
+        </section>
+
+        <div id="grundlagen" class="mb-20 pt-16 -mt-16">
+            <h3 class="text-2xl md:text-3xl font-bold mb-2 text-center text-teal-700">1. Grundlagen</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">Alles beginnt mit dem "Warum". In diesem Abschnitt untersuchen wir die fundamentalen psychologischen Antriebe, die uns motivieren und uns in den Zustand höchster Produktivität versetzen. Verstehen Sie diese Prinzipien, um eine solide Basis für Ihr Selbstmanagement zu schaffen.</p>
+            
+            <div class="grid md:grid-cols-5 gap-8 items-center">
+                <div class="md:col-span-3 card p-6">
+                    <h4 class="font-bold text-xl mb-2 text-slate-800">Die Säulen der Motivation: Selbstbestimmungstheorie</h4>
+                    <p class="text-slate-600 mb-4">Intrinsische Motivation – der Antrieb, der von innen kommt – ist der Schlüssel zum Erfolg in freien Projekten. Laut der Selbstbestimmungstheorie (SDT) von Deci & Ryan wird sie durch drei psychologische Grundbedürfnisse genährt. Klicken Sie auf einen Balken, um mehr zu erfahren.</p>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="sdtChart"></canvas>
+                    </div>
+                </div>
+                <div id="sdt-details" class="md:col-span-2 card p-6 min-h-[300px] flex flex-col justify-center">
+                    <h5 id="sdt-title" class="font-bold text-lg mb-2 text-teal-600">Wählen Sie eine Säule</h5>
+                    <p id="sdt-text" class="text-slate-700">Klicken Sie auf "Autonomie", "Kompetenz" oder "Soziale Eingebundenheit" im Diagramm, um zu sehen, wie dieses Bedürfnis Ihre Motivation beeinflusst und wie Sie es in Ihren Projekten fördern können.</p>
+                </div>
+            </div>
+
+            <div class="card p-6 md:p-8 mt-12">
+                <h4 class="font-bold text-xl mb-4 text-center text-slate-800">Flow: Der Zustand optimaler Leistung</h4>
+                <p class="text-slate-600 mb-6 text-center max-w-3xl mx-auto">Der "Flow", nach Mihály Csíkszentmihályi, ist ein mentaler Zustand, in dem wir völlig in einer Tätigkeit aufgehen. Er entsteht, wenn unsere Fähigkeiten genau den Anforderungen einer Aufgabe entsprechen. Fahren Sie mit der Maus über die Bereiche, um die verschiedenen Zustände zu erkunden.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                    <div class="relative p-4 border-l-4 border-slate-400">
+                        <span class="absolute top-2 right-2 text-slate-400 font-bold text-sm">ANFORDERUNG</span>
+                    </div>
+                    <div class="relative p-4 border-l-4 border-amber-500">
+                        <p class="font-bold text-lg text-amber-600">↗ HOCH</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 md:col-span-2 border-t-2 border-slate-300 pt-4">
+                        <div id="flow-quadrant-container" class="grid grid-cols-2 col-span-2 gap-1 bg-slate-200 rounded-lg p-1">
+                            <div class="flow-quadrant bg-white rounded-md p-6 text-center cursor-pointer transition-all duration-300" data-title="Angst / Stress" data-text="Hohe Anforderungen treffen auf geringe Fähigkeiten. Führt zu Überforderung und Stress.">
+                                <p class="font-bold text-red-600">Angst</p>
+                            </div>
+                            <div class="flow-quadrant bg-white rounded-md p-6 text-center cursor-pointer transition-all duration-300" data-title="Flow" data-text="Hohe Anforderungen und hohe Fähigkeiten im Einklang. Führt zu Konzentration, Freude und optimaler Leistung.">
+                                <p class="font-bold text-green-600">Flow</p>
+                            </div>
+                            <div class="flow-quadrant bg-white rounded-md p-6 text-center cursor-pointer transition-all duration-300" data-title="Apathie / Langeweile" data-text="Geringe Anforderungen und geringe Fähigkeiten. Führt zu Desinteresse und Passivität.">
+                                <p class="font-bold text-slate-500">Apathie</p>
+                            </div>
+                            <div class="flow-quadrant bg-white rounded-md p-6 text-center cursor-pointer transition-all duration-300" data-title="Entspannung / Kontrolle" data-text="Geringe Anforderungen treffen auf hohe Fähigkeiten. Führt zu Entspannung, aber auch zu potenzieller Langeweile.">
+                                <p class="font-bold text-blue-600">Kontrolle</p>
+                            </div>
+                        </div>
+                        <div class="relative p-4 border-b-4 border-amber-500 md:col-start-2">
+                             <p class="font-bold text-lg text-amber-600 text-right">HOCH ↗</p>
+                             <span class="absolute bottom-2 left-2 text-slate-400 font-bold text-sm">FÄHIGKEITEN</span>
+                        </div>
+                    </div>
+                    
+                </div>
+                 <div id="flow-details" class="mt-6 text-center p-4 bg-slate-100 rounded-lg min-h-[80px]">
+                    <h5 id="flow-title" class="font-bold text-lg text-teal-600">Entdecken Sie die Zustände</h5>
+                    <p id="flow-text" class="text-slate-700">Bewegen Sie den Mauszeiger über ein Feld, um die psychologische Bedeutung zu erfahren.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="herausforderungen" class="mb-20 pt-16 -mt-16">
+            <h3 class="text-2xl md:text-3xl font-bold mb-2 text-center text-teal-700">2. Herausforderungen</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">Selbstgesteuerte Arbeit bringt typische Hürden mit sich. Prokrastination und die Suche nach der richtigen Balance zwischen starrem Plan und kreativem Chaos sind zentrale Themen. Dieser Abschnitt hilft Ihnen, diese Herausforderungen zu verstehen und zu navigieren.</p>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-6 md:p-8">
+                    <h4 class="font-bold text-xl mb-4 text-slate-800">Das Dilemma der Prokrastination</h4>
+                    <p class="text-slate-600 mb-6">Wir schieben Aufgaben auf, obwohl wir wissen, dass es uns schadet. Die Gründe dafür unterscheiden sich jedoch, je nachdem, ob ein Projekt von uns selbst gewählt oder von außen vorgegeben wurde. Wählen Sie einen Kontext, um die typischen Ursachen zu sehen.</p>
+                    <div class="flex space-x-4 mb-4">
+                        <button id="btn-pro-self" class="pro-btn flex-1 py-2 px-4 rounded-md font-medium transition bg-teal-600 text-white shadow">Selbstgewählte Projekte</button>
+                        <button id="btn-pro-other" class="pro-btn flex-1 py-2 px-4 rounded-md font-medium transition bg-white text-slate-700 hover:bg-slate-100">Fremdgesteuerte Projekte</button>
+                    </div>
+                    <div id="pro-content" class="p-4 bg-slate-100 rounded-lg">
+                        <h5 id="pro-title" class="font-bold text-lg mb-2 text-teal-700">Ursachen bei selbstgewählten Projekten</h5>
+                        <ul id="pro-list" class="list-disc list-inside space-y-1 text-slate-700">
+                            <li>Perfektionismus: Die Angst, den eigenen hohen Ansprüchen nicht zu genügen.</li>
+                            <li>Unklarheit: Das Projektziel ist zu vage oder der nächste Schritt ist unklar.</li>
+                            <li>Überwältigung: Das Projekt erscheint zu groß und komplex.</li>
+                            <li>Angst vor Erfolg/Misserfolg: Was passiert, wenn ich es schaffe (oder nicht)?</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card p-6 md:p-8">
+                    <h4 class="font-bold text-xl mb-4 text-slate-800">Planung vs. Spontaneität</h4>
+                    <p class="text-slate-600 mb-6">Wie viel Struktur braucht die Kreativität? Zu viel Planung kann lähmen, zu wenig kann im Chaos enden. Der Schlüssel liegt in einer flexiblen Struktur. Entdecken Sie die Vor- und Nachteile der verschiedenen Ansätze.</p>
+                     <div class="mb-4">
+                        <input id="planning-slider" type="range" min="0" max="100" value="50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-sm text-slate-500 mt-2">
+                            <span>Strikte Planung</span>
+                            <span>Flexible Struktur</span>
+                            <span>Pure Spontanität</span>
+                        </div>
+                    </div>
+                    <div id="planning-content" class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-green-100 rounded-lg">
+                            <h5 class="font-bold text-green-800 mb-2">Vorteile</h5>
+                            <p id="planning-pros" class="text-sm text-green-900">Gibt Orientierung, reduziert Unsicherheit, fördert sichtbaren Fortschritt.</p>
+                        </div>
+                        <div class="p-4 bg-red-100 rounded-lg">
+                            <h5 class="font-bold text-red-800 mb-2">Nachteile</h5>
+                            <p id="planning-cons" class="text-sm text-red-900">Kann Kreativität einschränken, fühlt sich starr an, ist anfällig für unvorhergesehene Änderungen.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="werkzeuge" class="mb-20 pt-16 -mt-16">
+            <h3 class="text-2xl md:text-3xl font-bold mb-2 text-center text-teal-700">3. Die Werkzeuge</h3>
+            <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">Wissen ist der erste Schritt, Anwendung der zweite. Dieser Abschnitt stellt Ihnen konkrete Techniken und Routinen vor, die auf psychologischen Erkenntnissen basieren. Nutzen Sie diese Werkzeuge, um Ihre Motivation zu steuern, Klarheit zu schaffen und Ihr Wohlbefinden zu sichern.</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <h4 class="font-bold text-xl mb-2 text-slate-800">Pausen & Erholung</h4>
+                    <p class="text-slate-600">Effektives Selbstmanagement bedeutet nicht, pausenlos zu arbeiten. Gezielte Pausen und das Management unseres Belohnungssystems (Dopamin) sind entscheidend, um Energie und Fokus langfristig zu erhalten.</p>
+                </div>
+                <div class="card p-6">
+                    <h4 class="font-bold text-xl mb-2 text-slate-800">Analoge Routinen</h4>
+                    <p class="text-slate-600">In einer digitalen Welt können analoge Werkzeuge wie ein Journal Wunder wirken. Sie schaffen Distanz, fördern Klarheit und helfen, den Tag bewusst zu starten und zu strukturieren. Eine einfache Morgenroutine kann die Motivation für den ganzen Tag setzen.</p>
+                </div>
+                <div class="card p-6">
+                    <h4 class="font-bold text-xl mb-2 text-slate-800">Reflexion & Selbstwirksamkeit</h4>
+                    <p class="text-slate-600">Der Tag endet, der Lernprozess beginnt. Abendliches Journaling hilft, Erfolge zu erkennen, aus Herausforderungen zu lernen und die eigene Selbstwirksamkeit – den Glauben an die eigenen Fähigkeiten – zu stärken. Dies festigt die Bindung an langfristige Ziele.</p>
+                </div>
+            </div>
+
+            <div class="card p-6 md:p-8 mt-12">
+                <h4 class="font-bold text-xl mb-4 text-center text-slate-800">Synthese: Die Balance für Ihr Wohlbefinden</h4>
+                <p class="text-slate-600 mb-8 text-center max-w-3xl mx-auto">Die Gesundheitspsychologie zeigt: Das höchste Wohlbefinden in flexiblen Arbeitsumgebungen entsteht durch eine gesunde Balance zwischen Autonomie und Struktur. Autonomie nährt unsere intrinsische Motivation, während Struktur uns Sicherheit gibt und Überforderung verhindert. Simulieren Sie verschiedene Szenarien, um den Effekt auf Ihr Wohlbefinden zu sehen.</p>
+                
+                <div class="w-full max-w-md mx-auto mb-8">
+                    <div class="relative h-20">
+                        <div class="balance-scale-base absolute bottom-0 left-0"></div>
+                        <div id="balance-arm" class="balance-scale-arm">
+                            <div class="balance-scale-pan" style="left: -10px;"></div>
+                            <div class="balance-scale-pan" style="right: -10px;"></div>
+                        </div>
+                         <div class="absolute w-full top-0 flex justify-between items-center px-4">
+                            <span class="font-bold text-blue-600">Autonomie</span>
+                            <span class="font-bold text-red-600">Struktur</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="flex flex-col items-center">
+                         <div class="chart-container w-48 h-48 md:w-64 md:h-64">
+                            <canvas id="wellbeingChart"></canvas>
+                        </div>
+                        <p class="text-center font-bold mt-2 text-slate-700">Psychologisches Wohlbefinden</p>
+                    </div>
+                    <div class="flex flex-col space-y-4">
+                        <button class="balance-btn py-2 px-4 rounded-md font-medium transition bg-blue-100 text-blue-800 hover:bg-blue-200" data-state="autonomy">Szenario 1: Zu viel Autonomie (Chaos)</button>
+                        <button class="balance-btn py-2 px-4 rounded-md font-medium transition bg-red-100 text-red-800 hover:bg-red-200" data-state="structure">Szenario 2: Zu viel Struktur (Starrheit)</button>
+                        <button class="balance-btn py-2 px-4 rounded-md font-medium transition bg-green-600 text-white shadow" data-state="balance">Szenario 3: Gesunde Balance (Flow)</button>
+                        <div id="balance-text" class="p-4 bg-slate-100 rounded-lg text-center">
+                            <p class="text-slate-700">Wählen Sie ein Szenario, um die Auswirkungen auf die Balance und das Wohlbefinden zu sehen.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="empfehlungen" class="pt-16 -mt-16">
+            <h3 class="text-2xl md:text-3xl font-bold mb-2 text-center text-teal-700">4. Praktische Empfehlungen</h3>
+             <p class="text-center text-slate-600 mb-12 max-w-2xl mx-auto">Basierend auf den psychologischen Erkenntnissen, hier sind konkrete Handlungsempfehlungen für Studierende und alle mit projektorientierter, flexibler Arbeitsweise.</p>
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="card p-6 flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">1</div>
+                    <div>
+                        <h4 class="font-bold text-lg">Schaffen Sie "autonome Strukturen"</h4>
+                        <p class="text-slate-600">Definieren Sie eigene Regeln. Legen Sie feste "Kernarbeitszeiten" für Ihr Projekt fest, aber entscheiden Sie selbst, *was* Sie in dieser Zeit tun. Nutzen Sie einen Wochenplaner für grobe Ziele, aber lassen Sie täglichen Spielraum für spontane Ideen. Dies kombiniert die Sicherheit von Struktur mit der Freiheit der Autonomie.</p>
+                    </div>
+                </div>
+                <div class="card p-6 flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">2</div>
+                    <div>
+                        <h4 class="font-bold text-lg">Starten und beenden Sie den Tag bewusst</h4>
+                        <p class="text-slate-600">Nutzen Sie ein Morgenritual (z.B. 5 Min. Journaling), um die 1-3 wichtigsten Aufgaben des Tages festzulegen (schafft Klarheit). Beenden Sie den Tag mit einer kurzen Reflexion (z.B. "Was habe ich heute geschafft?", "Was lief gut?"), um Selbstwirksamkeit zu stärken und kleine Erfolge sichtbar zu machen.</p>
+                    </div>
+                </div>
+                <div class="card p-6 flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">3</div>
+                    <div>
+                        <h4 class="font-bold text-lg">Arbeiten Sie in Zyklen, nicht linear</h4>
+                        <p class="text-slate-600">Nutzen Sie Techniken wie die Pomodoro-Technik (25 Min. Fokus, 5 Min. Pause). Dies schützt vor Erschöpfung und respektiert die natürlichen Dopamin- und Energiezyklen des Gehirns. Belohnen Sie sich nach einer abgeschlossenen Fokuseinheit, aber vermeiden Sie "billiges Dopamin" (z.B. Social Media) als Pausenfüller.</p>
+                    </div>
+                </div>
+                 <div class="card p-6 flex items-start space-x-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">4</div>
+                    <div>
+                        <h4 class="font-bold text-lg">Optimieren Sie für Flow, nicht für Perfektion</h4>
+                        <p class="text-slate-600">Stellen Sie sicher, dass Ihre Aufgaben eine angemessene Herausforderung darstellen (nicht zu leicht, nicht zu schwer). Brechen Sie riesige Aufgaben in kleinere, überschaubare Schritte herunter. Das Ziel ist, in den Flow zu kommen, nicht, vom ersten Moment an ein perfektes Ergebnis zu erzielen. Fortschritt ist wichtiger als Perfektion.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    
+    <footer class="bg-slate-800 text-slate-400 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm">
+            <p>&copy; 2025 Interaktiver Leitfaden zum Selbstmanagement. Erstellt als Synthese psychologischer Forschung.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if(menuBtn) {
+                menuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            const mobileLinks = mobileMenu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            const sdtData = {
+                labels: ['Autonomie', 'Kompetenz', 'Soziale Eingebundenheit'],
+                datasets: [{
+                    label: 'Bedeutung für intrinsische Motivation',
+                    data: [10, 10, 10],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                        'rgba(16, 185, 129, 0.7)',
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(16, 185, 129, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            const sdtDetails = {
+                'Autonomie': {
+                    title: 'Autonomie: Der Wunsch nach Selbstbestimmung',
+                    text: 'Sie beschreibt das Bedürfnis, Handlungen als selbst gewählt und im Einklang mit den eigenen Werten zu erleben. In Projekten bedeutet das, Wahlmöglichkeiten bei Zielen, Methoden und Zeitmanagement zu haben. Fördern Sie sie, indem Sie sich fragen: "Was ist mir an diesem Projekt wirklich wichtig?"'
+                },
+                'Kompetenz': {
+                    title: 'Kompetenz: Das Streben nach Wirksamkeit',
+                    text: 'Dies ist das Bedürfnis, sich als fähig und effektiv zu erleben und Herausforderungen meistern zu können. Brechen Sie große Ziele in kleine, erreichbare Schritte herunter. Jeder abgeschlossene Schritt stärkt Ihr Kompetenzerleben und Ihre Motivation.'
+                },
+                'Soziale Eingebundenheit': {
+                    title: 'Soziale Eingebundenheit: Das Bedürfnis nach Zugehörigkeit',
+                    text: 'Beschreibt den Wunsch, sich mit anderen verbunden zu fühlen. Auch bei Soloprojekten wichtig! Suchen Sie sich einen Lernpartner, treten Sie einer Community bei oder teilen Sie Ihre Fortschritte mit Freunden. Dies schafft Verbindlichkeit und Unterstützung.'
+                }
+            };
+
+            const sdtChartCtx = document.getElementById('sdtChart');
+            if(sdtChartCtx) {
+                const sdtChart = new Chart(sdtChartCtx, {
+                    type: 'bar',
+                    data: sdtData,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: false,
+                                max: 12
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        onClick: (event, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const label = sdtData.labels[index];
+                                const details = sdtDetails[label];
+                                document.getElementById('sdt-title').textContent = details.title;
+                                document.getElementById('sdt-text').textContent = details.text;
+                            }
+                        }
+                    }
+                });
+            }
+
+            const flowQuadrants = document.querySelectorAll('.flow-quadrant');
+            const flowTitle = document.getElementById('flow-title');
+            const flowText = document.getElementById('flow-text');
+            const flowDetailsContainer = document.getElementById('flow-details');
+
+            flowQuadrants.forEach(quadrant => {
+                quadrant.addEventListener('mouseenter', () => {
+                    flowTitle.textContent = quadrant.dataset.title;
+                    flowText.textContent = quadrant.dataset.text;
+                    flowQuadrants.forEach(q => q.style.opacity = '0.5');
+                    quadrant.style.opacity = '1';
+                    quadrant.style.transform = 'scale(1.05)';
+                });
+                quadrant.addEventListener('mouseleave', () => {
+                     flowQuadrants.forEach(q => {
+                        q.style.opacity = '1';
+                        q.style.transform = 'scale(1)';
+                     });
+                });
+            });
+            document.getElementById('flow-quadrant-container').addEventListener('mouseleave', () => {
+                flowTitle.textContent = 'Entdecken Sie die Zustände';
+                flowText.textContent = 'Bewegen Sie den Mauszeiger über ein Feld, um die psychologische Bedeutung zu erfahren.';
+            });
+
+            const proContent = {
+                self: {
+                    title: 'Ursachen bei selbstgewählten Projekten',
+                    list: [
+                        'Perfektionismus: Die Angst, den eigenen hohen Ansprüchen nicht zu genügen.',
+                        'Unklarheit: Das Projektziel ist zu vage oder der nächste Schritt ist unklar.',
+                        'Überwältigung: Das Projekt erscheint zu groß und komplex.',
+                        'Angst vor Erfolg/Misserfolg: Was passiert, wenn ich es schaffe (oder nicht)?'
+                    ]
+                },
+                other: {
+                    title: 'Ursachen bei fremdgesteuerten Projekten',
+                    list: [
+                        'Mangelnde Autonomie: Das Gefühl, keine Kontrolle zu haben, lähmt die Motivation.',
+                        'Geringer Wert: Die Aufgabe wird als sinnlos oder unwichtig empfunden.',
+                        'Rebellion: Ein passiver Widerstand gegen die aufgezwungene Aufgabe.',
+                        'Angst vor negativer Bewertung: Die Furcht vor Kritik oder schlechten Noten.'
+                    ]
+                }
+            };
+            const proTitleEl = document.getElementById('pro-title');
+            const proListEl = document.getElementById('pro-list');
+            const btnProSelf = document.getElementById('btn-pro-self');
+            const btnProOther = document.getElementById('btn-pro-other');
+
+            function updateProContent(type) {
+                proTitleEl.textContent = proContent[type].title;
+                proListEl.innerHTML = proContent[type].list.map(item => `<li>${item}</li>`).join('');
+                if(type === 'self'){
+                    btnProSelf.classList.add('bg-teal-600', 'text-white', 'shadow');
+                    btnProSelf.classList.remove('bg-white', 'text-slate-700', 'hover:bg-slate-100');
+                    btnProOther.classList.remove('bg-teal-600', 'text-white', 'shadow');
+                    btnProOther.classList.add('bg-white', 'text-slate-700', 'hover:bg-slate-100');
+                } else {
+                    btnProOther.classList.add('bg-teal-600', 'text-white', 'shadow');
+                    btnProOther.classList.remove('bg-white', 'text-slate-700', 'hover:bg-slate-100');
+                    btnProSelf.classList.remove('bg-teal-600', 'text-white', 'shadow');
+                    btnProSelf.classList.add('bg-white', 'text-slate-700', 'hover:bg-slate-100');
+                }
+            }
+
+            if(btnProSelf) btnProSelf.addEventListener('click', () => updateProContent('self'));
+            if(btnProOther) btnProOther.addEventListener('click', () => updateProContent('other'));
+            
+            const planningSlider = document.getElementById('planning-slider');
+            const planningPros = document.getElementById('planning-pros');
+            const planningCons = document.getElementById('planning-cons');
+            if (planningSlider) {
+                planningSlider.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    if (value < 33) {
+                        planningPros.textContent = "Maximale Klarheit, hohe Vorhersehbarkeit, einfache Fortschrittskontrolle.";
+                        planningCons.textContent = "Kaum Raum für Kreativität, starr bei unvorhergesehenen Problemen, kann demotivierend wirken.";
+                    } else if (value >= 33 && value < 66) {
+                        planningPros.textContent = "Gibt Orientierung, erlaubt aber kreative Umwege und Anpassungen.";
+                        planningCons.textContent = "Erfordert Disziplin, die Balance zu halten und nicht ins Chaos abzudriften.";
+                    } else {
+                        planningPros.textContent = "Maximale kreative Freiheit, ideal für Entdeckungsphasen, fördert Serendipität.";
+                        planningCons.textContent = "Hohe Gefahr der Verzettlung, unklarer Fortschritt, kann zu Überforderung führen.";
+                    }
+                });
+            }
+
+            const wellbeingData = {
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: ['#10b981', '#e5e7eb'],
+                    borderWidth: 0,
+                    circumference: 360,
+                }]
+            };
+            const wellbeingChartCtx = document.getElementById('wellbeingChart');
+            let wellbeingChart;
+            if (wellbeingChartCtx) {
+                 wellbeingChart = new Chart(wellbeingChartCtx, {
+                    type: 'doughnut',
+                    data: wellbeingData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+            }
+            
+            const balanceButtons = document.querySelectorAll('.balance-btn');
+            const balanceArm = document.getElementById('balance-arm');
+            const balanceText = document.getElementById('balance-text');
+
+            function updateBalance(state) {
+                let rotation = 0;
+                let wellbeingValue = 50;
+                let text = '';
+                
+                switch(state) {
+                    case 'autonomy':
+                        rotation = -10;
+                        wellbeingValue = 40;
+                        text = 'Zu viel Freiheit ohne Struktur kann zu Chaos, Unverbindlichkeit und dem Gefühl führen, überfordert zu sein.';
+                        break;
+                    case 'structure':
+                        rotation = 10;
+                        wellbeingValue = 30;
+                        text = 'Zu viel Struktur ohne Autonomie kann zu Demotivation, Gefühl der Enge und Verlust der Kreativität führen.';
+                        break;
+                    case 'balance':
+                        rotation = 0;
+                        wellbeingValue = 90;
+                        text = 'Eine gesunde Balance ermöglicht Flow, Motivation und ein hohes Maß an Wohlbefinden und Produktivität.';
+                        break;
+                }
+                
+                if (balanceArm) balanceArm.style.transform = `rotate(${rotation}deg)`;
+                if (wellbeingChart) {
+                    wellbeingChart.data.datasets[0].data = [wellbeingValue, 100 - wellbeingValue];
+                    wellbeingChart.update('none');
+                }
+                if (balanceText) balanceText.children[0].textContent = text;
+            }
+            
+            balanceButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    updateBalance(button.dataset.state);
+                    balanceButtons.forEach(btn => {
+                        btn.classList.remove('bg-green-600', 'text-white', 'shadow');
+                        if(!btn.classList.contains('bg-blue-100') && !btn.classList.contains('bg-red-100')){
+                            btn.classList.add('bg-slate-200', 'text-slate-800');
+                        }
+                    });
+                    button.classList.add('bg-green-600', 'text-white', 'shadow');
+                    button.classList.remove('bg-slate-200', 'text-slate-800', 'bg-blue-100', 'text-blue-800', 'bg-red-100', 'text-red-800');
+                });
+            });
+
+            updateBalance('balance');
+            document.querySelector('.balance-btn[data-state="balance"]').click();
+        });
+    </script>
+</body>
+</html>
