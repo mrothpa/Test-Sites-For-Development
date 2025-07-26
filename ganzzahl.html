@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exakter Ganzzahl-Taschenrechner</title>
+  <style>
+    :root {
+      --primary: #0000ff;
+      --text: #ffffff;
+      --background: #121212;
+      --container-bg: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: var(--container-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 255, 0.2);
+      width: 95%;
+      max-width: 700px;
+      text-align: center;
+      border: 2px solid var(--primary);
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 3.5rem;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      background-color: #000000;
+      color: var(--text);
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      resize: none;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 1rem;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0000cc;
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      word-break: break-word;
+      max-height: 50vh;
+      overflow-y: auto;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Exakter Ganzzahl-Taschenrechner</h1>
+    <textarea id="inputExpr" placeholder="z. B. (1/3 + 2)^2 oder 424345234524534534^2"></textarea>
+    <br />
+    <button onclick="berechne()">Berechnen</button>
+    <div class="result" id="ergebnis"></div>
+  </div>
+
+  <script>
+    function parseFraction(expr) {
+      if (/^\s*-?\d+\s*\/\s*-?\d+\s*$/.test(expr)) {
+        const [num, den] = expr.split("/").map(s => BigInt(s.trim()));
+        return { num, den };
+      }
+      return null;
+    }
+
+    function evalExpr(expr) {
+      expr = expr.replace(/\s+/g, "");
+
+      // Unterstützt einfache +, -, *, /, ^ und Klammern
+      // Rechnet intern mit BigInt
+      const allowed = /^[0-9()+\-*/^\/]*$/;
+      if (!allowed.test(expr)) throw new Error("Ungültiger Ausdruck");
+
+      // Umwandlung in JavaScript-Ausdruck mit BigInt
+      const replaced = expr.replace(/\d+/g, match => `${match}n`);
+      return eval(replaced).toString().replace(/n$/, "");
+    }
+
+    function berechne() {
+      const input = document.getElementById("inputExpr").value.trim();
+      const ergebnisFeld = document.getElementById("ergebnis");
+
+      try {
+        const bruch = parseFraction(input);
+        let output;
+
+        if (bruch) {
+          if (bruch.den === 0n) throw new Error("Division durch 0");
+          const gcd = (a, b) => b === 0n ? a : gcd(b, a % b);
+          const g = gcd(bruch.num, bruch.den);
+          const n = bruch.num / g;
+          const d = bruch.den / g;
+          output = (d === 1n) ? n.toString() : `${n} / ${d}`;
+        } else {
+          output = evalExpr(input);
+        }
+
+        ergebnisFeld.textContent = output;
+      } catch (err) {
+        ergebnisFeld.textContent = "Fehler: " + err.message;
+      }
+
+      ergebnisFeld.classList.remove("show");
+      void ergebnisFeld.offsetWidth;
+      ergebnisFeld.classList.add("show");
+    }
+  </script>
+</body>
+</html>
