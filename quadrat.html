@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zahl quadrieren</title>
+  <style>
+    :root {
+      --primary: #0000ff;
+      --text: #ffffff;
+      --background: #121212;
+      --container-bg: #1e1e1e;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: var(--container-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 255, 0.2);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      border: 2px solid var(--primary);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: scale(1.01);
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      background-color: #000000;
+      color: var(--text);
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0000cc;
+    }
+
+    .result {
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      word-break: break-word;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Zahl quadrieren</h1>
+    <input type="text" id="inputZahl" placeholder="Gib eine ganze Zahl ein (auch sehr groß)">
+    <br>
+    <button onclick="quadrieren()">Quadrieren</button>
+    <div class="result" id="ergebnis"></div>
+  </div>
+
+  <script>
+    function quadrieren() {
+      const inputStr = document.getElementById('inputZahl').value.trim();
+      const ergebnisFeld = document.getElementById('ergebnis');
+
+      try {
+        // prüfe, ob gültige ganze Zahl
+        if (!/^-?\d+$/.test(inputStr)) {
+          throw new Error("Bitte gib eine gültige ganze Zahl ein.");
+        }
+
+        const big = BigInt(inputStr);
+        const square = big * big;
+
+        ergebnisFeld.textContent = square.toString();
+      } catch (e) {
+        ergebnisFeld.textContent = e.message;
+      }
+
+      ergebnisFeld.classList.remove("show");
+      void ergebnisFeld.offsetWidth;
+      ergebnisFeld.classList.add("show");
+    }
+  </script>
+</body>
+</html>
