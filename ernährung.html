@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ernährungs- und Stabilitätsleitfaden für große Athleten</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .kpi-value {
+            color: #D90368;
+        }
+        .kpi-label {
+            color: #753A88;
+        }
+        .section-title {
+            color: #00A6A6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .flow-arrow {
+            color: #D90368;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold section-title mb-4">Ernährungsleitfaden für den großen Athleten</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">Eine wissenschaftlich fundierte Strategie für Muskelaufbau, Leistung und langfristige Gesundheit bei einer Körpergröße von 205 cm und vegetarischer Ernährung.</p>
+        </header>
+
+        <section id="kpis" class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="card">
+                    <p class="text-6xl font-black kpi-value">205<span class="text-3xl">cm</span></p>
+                    <p class="text-xl font-semibold kpi-label mt-2">Körpergröße</p>
+                </div>
+                <div class="card">
+                    <p class="text-6xl font-black kpi-value">80<span class="text-3xl">kg</span></p>
+                    <p class="text-xl font-semibold kpi-label mt-2">Gewicht</p>
+                </div>
+                <div class="card">
+                    <p class="text-6xl font-black kpi-value">Ziel</p>
+                    <p class="text-xl font-semibold kpi-label mt-2">Muskelaufbau & Stabilität</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="energy" class="card">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">Täglicher Energiebedarf</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Um Muskelmasse aufzubauen, ist ein Kalorienüberschuss notwendig. Der Gesamtbedarf setzt sich aus dem Grundumsatz (BMR), dem Leistungsumsatz (Aktivität) und einem gezielten Überschuss zusammen.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="chart-container">
+                    <canvas id="energyChart"></canvas>
+                </div>
+                <div class="text-center md:text-left">
+                    <h3 class="text-2xl font-bold mb-4" style="color: #753A88;">Gesamtziel: ~4000 kcal</h3>
+                    <ul class="space-y-3 text-lg">
+                        <li class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color: #00A6A6;"></span>Grundumsatz: <b class="ml-1">~2070 kcal</b></li>
+                        <li class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color: #F9C22E;"></span>Aktivitätsbonus: <b class="ml-1">~1501 kcal</b></li>
+                        <li class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color: #D90368;"></span>Muskelaufbau-Plus: <b class="ml-1">~400 kcal</b></li>
+                    </ul>
+                    <p class="mt-6 text-gray-500">Diese hohe Kalorienmenge erfordert eine konsequente Planung und mehrere Mahlzeiten über den Tag verteilt, um den Bedarf zu decken und die Regeneration zu maximieren.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="macros" class="card">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">Makronährstoff-Verteilung</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Die richtige Balance von Proteinen, Kohlenhydraten und Fetten ist der Schlüssel zu Leistung und Muskelwachstum. Die prozentuale Verteilung ist auf das Gesamtkalorienziel von ~4000 kcal ausgelegt.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                 <div class="text-center md:text-left">
+                    <h3 class="text-2xl font-bold mb-4" style="color: #753A88;">Tägliche Zielwerte</h3>
+                    <ul class="space-y-3 text-lg">
+                        <li class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color: #D90368;"></span>Protein: <b class="ml-1">128 - 176 g</b></li>
+                        <li class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color: #00A6A6;"></span>Kohlenhydrate: <b class="ml-1">400 - 640 g</b></li>
+                        <li class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color: #F9C22E;"></span>Fett: <b class="ml-1">64 - 80 g</b></li>
+                    </ul>
+                    <p class="mt-6 text-gray-500">Proteine sind für den Muskelaufbau, Kohlenhydrate für die Energie und Fette für hormonelle Prozesse unerlässlich. Eine hohe Zufuhr ist für große, aktive Personen entscheidend.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="macroChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section id="protein-sources" class="card">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">Top Vegetarische Proteinquellen</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Die Deckung des hohen Proteinbedarfs erfordert die gezielte Auswahl proteinreicher vegetarischer Lebensmittel. Hier ein Vergleich des Proteingehalts pro 100g.</p>
+            <div class="chart-container h-96 md:h-[500px] max-w-4xl">
+                 <canvas id="proteinSourcesChart"></canvas>
+            </div>
+             <p class="mt-6 text-gray-500 text-center">Die Kombination verschiedener Quellen (z.B. Hülsenfrüchte mit Getreide) stellt sicher, dass alle essentiellen Aminosäuren aufgenommen werden.</p>
+        </section>
+
+        <section id="micronutrients" class="card">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">Kritische Mikronährstoffe im Fokus</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Eine vegetarische Ernährung ist gesund, erfordert aber Aufmerksamkeit bei bestimmten Vitaminen und Mineralstoffen, um Mängel zu vermeiden und die Knochen- und Gelenkgesundheit zu unterstützen.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div class="text-center p-4 rounded-lg border">
+                    <h3 class="text-xl font-bold mb-2" style="color: #753A88;">Kalzium</h3>
+                    <p class="text-sm text-gray-500 mb-4">Für Knochen & Muskeln</p>
+                    <div class="chart-container !h-64">
+                        <canvas id="calciumChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="text-center p-4 rounded-lg border">
+                    <h3 class="text-xl font-bold mb-2" style="color: #753A88;">Eisen</h3>
+                    <p class="text-sm text-gray-500 mb-4">Für Energie & Sauerstoff</p>
+                    <div class="chart-container !h-64">
+                        <canvas id="ironChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="text-center p-4 rounded-lg border">
+                    <h3 class="text-xl font-bold mb-2" style="color: #753A88;">Zink</h3>
+                     <p class="text-sm text-gray-500 mb-4">Für Immunsystem & Wachstum</p>
+                    <div class="chart-container !h-64">
+                        <canvas id="zincChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="text-center p-4 rounded-lg border">
+                    <h3 class="text-xl font-bold mb-2" style="color: #753A88;">Vitamin B12</h3>
+                     <p class="text-sm text-gray-500 mb-4">Für Nerven & Blutbildung</p>
+                    <div class="chart-container !h-64">
+                        <canvas id="b12Chart"></canvas>
+                    </div>
+                </div>
+
+                 <div class="text-center p-4 rounded-lg border">
+                    <h3 class="text-xl font-bold mb-2" style="color: #753A88;">Vitamin D</h3>
+                     <p class="text-sm text-gray-500 mb-4">Für Knochen & Kalziumaufnahme</p>
+                    <div class="chart-container !h-64">
+                        <canvas id="dChart"></canvas>
+                    </div>
+                </div>
+
+                 <div class="text-center p-4 rounded-lg border">
+                    <h3 class="text-xl font-bold mb-2" style="color: #753A88;">Omega-3 (ALA)</h3>
+                     <p class="text-sm text-gray-500 mb-4">Für Herz & Gehirn</p>
+                    <div class="chart-container !h-64">
+                        <canvas id="omegaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <p class="mt-8 text-gray-500 text-center">Tipp: Die Aufnahme von Eisen aus pflanzlichen Quellen wird durch gleichzeitigen Verzehr von Vitamin C (z.B. aus Paprika, Orangen) verbessert.</p>
+        </section>
+        
+        <section id="biomechanics" class="card">
+            <h2 class="text-3xl font-bold text-center mb-2 section-title">Biomechanik & Stabilität</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Große Statur bedeutet längere Hebel und höhere Belastung für Gelenke und Wirbelsäule. Eine starke Muskulatur ist kein Bonus, sondern eine Notwendigkeit zur Prävention.</p>
+            <div class="flex flex-col md:flex-row justify-center items-stretch gap-4 text-center">
+                <div class="flex-1 p-4 bg-red-50 rounded-lg">
+                    <h4 class="font-bold text-lg text-red-800">Risikofaktor</h4>
+                    <p class="text-red-600">Schwache Gesäßmuskulatur</p>
+                </div>
+                <div class="self-center text-2xl flow-arrow p-2">&rarr;</div>
+                <div class="flex-1 p-4 bg-yellow-50 rounded-lg">
+                    <h4 class="font-bold text-lg text-yellow-800">Kompensation</h4>
+                    <p class="text-yellow-600">Instabiles Becken & erhöhte Belastung im unteren Rücken</p>
+                </div>
+                <div class="self-center text-2xl flow-arrow p-2">&rarr;</div>
+                <div class="flex-1 p-4 bg-orange-50 rounded-lg">
+                    <h4 class="font-bold text-lg text-orange-800">Folge</h4>
+                    <p class="text-orange-600">Höherer Stress auf Kniegelenke und Wirbelsäule</p>
+                </div>
+            </div>
+            <p class="mt-8 text-gray-500 text-center">Ein gezieltes Training von <b class="text-gray-700">Rumpf, Gesäß und Beinbeugern</b> ist entscheidend, um diese Kette zu durchbrechen und die Gelenke zu schützen. Die richtige Ernährung liefert die Bausteine für diese schützende Muskulatur.</p>
+        </section>
+
+        <footer class="text-center mt-12 py-6 border-t border-gray-200">
+            <p class="text-gray-500">Dieser Leitfaden basiert auf wissenschaftlichen Erkenntnissen und dient der Orientierung. Eine individuelle Beratung durch Fachpersonal wird empfohlen.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const FONT_COLOR = '#374151';
+        const GRID_COLOR = '#e5e7eb';
+        
+        const PALETTE = {
+            blue: '#00A6A6',
+            purple: '#753A88',
+            pink: '#D90368',
+            yellow: '#F9C22E',
+            orange: '#F28123'
+        };
+
+        const defaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: FONT_COLOR,
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: { color: FONT_COLOR, beginAtZero: true },
+                    grid: { color: GRID_COLOR }
+                },
+                x: {
+                    ticks: { color: FONT_COLOR },
+                    grid: { display: false }
+                }
+            }
+        };
+        
+        const wrapLabel = (label, maxLength = 16) => {
+            if (label.length <= maxLength) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + word).length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            });
+            lines.push(currentLine.trim());
+            return lines.filter(line => line.length > 0);
+        };
+
+        new Chart(document.getElementById('energyChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Grundumsatz (BMR)', 'Aktivitätsbonus', 'Muskelaufbau-Plus'],
+                datasets: [{
+                    label: 'Energiebedarf in kcal',
+                    data: [2070, 1501, 400],
+                    backgroundColor: [PALETTE.blue, PALETTE.yellow, PALETTE.pink],
+                    borderColor: '#ffffff',
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                scales: { y: { display: false }, x: { display: false } },
+                plugins: { ...defaultOptions.plugins, legend: { position: 'bottom' } }
+            }
+        });
+
+        new Chart(document.getElementById('macroChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Kohlenhydrate', 'Protein', 'Fett'],
+                datasets: [{
+                    label: 'Anteil an Gesamtkalorien',
+                    data: [52, 16, 16], 
+                    backgroundColor: [PALETTE.blue, PALETTE.pink, PALETTE.yellow],
+                    borderColor: '#ffffff',
+                    borderWidth: 4
+                }]
+            },
+             options: {
+                ...defaultOptions,
+                scales: { y: { display: false }, x: { display: false } },
+                plugins: { ...defaultOptions.plugins, legend: { position: 'bottom' } }
+            }
+        });
+        
+        const proteinData = {
+            'Linsen (gekocht)': 9,
+            'Kichererbsen (gekocht)': 8.9,
+            'Tofu (fest)': 17,
+            'Eier': 13,
+            'Griech. Joghurt': 10,
+            'Quinoa (gekocht)': 4.4,
+            'Mandeln': 21,
+            'Kürbiskerne': 30,
+            'Hanfsamen': 31,
+            'Skyr': 11,
+            'Hüttenkäse': 11
+        };
+
+        new Chart(document.getElementById('proteinSourcesChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(proteinData).map(label => wrapLabel(label)),
+                datasets: [{
+                    label: 'Protein in g pro 100g',
+                    data: Object.values(proteinData),
+                    backgroundColor: PALETTE.pink,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                ...defaultOptions,
+                indexAxis: 'y',
+                scales: { 
+                    y: { ticks: { color: FONT_COLOR }, grid: { display: false } },
+                    x: { ticks: { color: FONT_COLOR }, grid: { color: GRID_COLOR } }
+                },
+                plugins: { ...defaultOptions.plugins, legend: { display: false } }
+            }
+        });
+
+        function createMicroNutrientChart(elementId, label, unit, rda, foodName, foodValue, color) {
+             new Chart(document.getElementById(elementId), {
+                type: 'bar',
+                data: {
+                    labels: ['Tagesbedarf (RDA)', wrapLabel(foodName)],
+                    datasets: [{
+                        label: `${label} in ${unit}`,
+                        data: [rda, foodValue],
+                        backgroundColor: [GRID_COLOR, color],
+                        borderColor: [GRID_COLOR, color],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    ...defaultOptions,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            title: { display: true, text: unit, color: FONT_COLOR }
+                        }
+                    },
+                    plugins: { ...defaultOptions.plugins, legend: { display: false } }
+                }
+            });
+        }
+
+        createMicroNutrientChart('calciumChart', 'Kalzium', 'mg', 1300, '250g Skyr', 275, PALETTE.blue);
+        createMicroNutrientChart('ironChart', 'Eisen', 'mg', 11, '100g Linsen (roh)', 6.9, PALETTE.orange);
+        createMicroNutrientChart('zincChart', 'Zink', 'mg', 11, '30g Kürbiskerne', 2.3, PALETTE.yellow);
+        createMicroNutrientChart('b12Chart', 'Vitamin B12', 'mcg', 2.4, '2 Eier', 1.0, PALETTE.pink);
+        createMicroNutrientChart('dChart', 'Vitamin D', 'mcg', 15, 'Supplement (Empfehlung)', 15, PALETTE.purple);
+        createMicroNutrientChart('omegaChart', 'Omega-3 (ALA)', 'g', 1.6, '1 EL Leinsamen (gemahlen)', 2.4, PALETTE.blue);
+
+    </script>
+</body>
+</html>
