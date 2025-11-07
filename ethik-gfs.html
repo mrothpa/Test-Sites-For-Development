@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethische Grenzen der Naturwissenschaft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chosen Palette: Warm Neutral (Stone/Amber) -->
+    <!-- Application Structure Plan: Die SPA nutzt eine tab-basierte Navigation (Home, Grundlagen, Fallbeispiel, Perspektiven, Fazit). Diese Struktur wurde gewählt, um den Nutzern (Schülern) eine nicht-lineare Erkundung zu ermöglichen. Statt eines linearen Berichts können sie je nach Interesse zwischen den Sektionen wechseln. 'Grundlagen' bündelt Hintergrundwissen (Theorie, Recht), 'Fallbeispiel' bietet einen interaktiven Deep-Dive (Chart, Toggles), und 'Perspektiven' kontrastiert die ethischen Modelle. Diese aufgabenorientierte Struktur fördert das Verständnis von Zusammenhängen besser als eine starre Gliederung. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Pro/Kontra Genmanipulation -> Goal: Vergleichen -> Viz/Method: Chart.js Horizontal Bar Chart -> Interaction: Hover Tooltips -> Justification: Direkter visueller Vergleich von Chancen und Risiken, eingängiger als Textlisten. -> Library: Chart.js (Canvas).
+        - Report Info: Ethische Differenzierung (Mensch, Tier, Pflanze) -> Goal: Organisieren/Nuancieren -> Viz/Method: Interaktive Button-Gruppe -> Interaction: Klick (zeigt/verbirgt Text) -> Justification: Ermöglicht nutzergesteuerte Exploration der Sub-Themen ohne UI-Überladung. -> Library: Vanilla JS.
+        - Report Info: Spannungsfeld Wissenschaft vs. Ethik -> Goal: Informieren/Organisieren -> Viz/Method: 3-Spalten HTML/Tailwind Layout -> Interaction: Keine -> Justification: Semantisches Layout ist klarer als ein erzwungenes Diagramm. -> Library: HTML/Tailwind.
+        - Report Info: Bibelstellen -> Goal: Kontext bieten -> Viz/Method: HTML-Links mit JS-Popup (Modal) -> Interaction: Klick -> Justification: Bietet direkten Zugriff auf den Quelltext, ohne die Seite zu verlassen. -> Library: Vanilla JS.
+        - Report Info: Vergleich ethischer Modelle -> Goal: Vergleichen -> Viz/Method: HTML-Tabelle -> Interaction: Keine -> Justification: Klarste Methode für strukturierten Kriterienvergleich.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .tab-button.active {
+            border-bottom-color: #f59e0b;
+            color: #b45309;
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-stone-50 font-sans text-stone-800">
+
+    <!-- Bible Verse Modal -->
+    <div id="bibleModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 relative">
+            <button id="closeModal" class="absolute top-4 right-4 text-stone-500 hover:text-stone-800 text-2xl">&times;</button>
+            <h3 id="modalTitle" class="text-xl font-semibold text-amber-700 mb-3">Biblischer Text</h3>
+            <p id="modalText" class="text-stone-700 whitespace-pre-wrap"></p>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <header class="mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-800 mb-2">Wo liegen die ethischen Grenzen?</h1>
+            <p class="text-xl md:text-2xl text-stone-600">Eine Auseinandersetzung am Beispiel der Genmanipulation</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="mb-8 border-b border-stone-300" role="tablist">
+            <div class="flex flex-wrap -mb-px">
+                <button class="tab-button active text-lg font-medium p-4 border-b-4 border-transparent hover:text-amber-600" data-target="panel-intro" role="tab">Einleitung</button>
+                <button class="tab-button text-lg font-medium p-4 border-b-4 border-transparent hover:text-amber-600" data-target="panel-basics" role="tab">Grundlagen</button>
+                <button class="tab-button text-lg font-medium p-4 border-b-4 border-transparent hover:text-amber-600" data-target="panel-case-study" role="tab">Fallbeispiel: Genmanipulation</button>
+                <button class="tab-button text-lg font-medium p-4 border-b-4 border-transparent hover:text-amber-600" data-target="panel-perspectives" role="tab">Perspektiven</button>
+                <button class="tab-button text-lg font-medium p-4 border-b-4 border-transparent hover:text-amber-600" data-target="panel-conclusion" role="tab">Fazit & Ausblick</button>
+            </div>
+        </nav>
+
+        <!-- Tab Content Panels -->
+        <main>
+            <!-- Panel: Einleitung -->
+            <div id="panel-intro" class="tab-panel active p-4 animate-fadeIn" role="tabpanel">
+                <h2 class="text-3xl font-semibold text-amber-700 mb-4">Fortschritt und Verantwortung</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    Naturwissenschaftliche Forschung ist der Motor des menschlichen Fortschritts. Sie heilt Krankheiten, sichert unsere Ernährung und eröffnet unvorstellbare Möglichkeiten. Doch dieser Fortschritt hat eine Kehrseite: Was passiert, wenn unser Können unsere Weisheit übersteigt? Wenn die Fähigkeit, Leben zu verändern, nicht mehr durch ethische Verantwortung begrenzt wird?
+                </p>
+                <p class="text-lg text-stone-700">
+                    Besonders die Gentechnik stellt uns vor fundamentale Fragen. Die Möglichkeit, das Erbgut von Pflanzen, Tieren und sogar Menschen zu verändern, zwingt uns, neu zu definieren, was es heißt, ein Mensch zu sein und welche Verantwortung wir für die Schöpfung tragen.
+                </p>
+                <div class="mt-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg">
+                    <p class="text-xl font-medium text-amber-900">
+                        Leitfrage: Wo verläuft die Grenze zwischen legitimer naturwissenschaftlicher Forschung zur Verbesserung des Lebens und einer moralisch unzulässigen Grenzüberschreitung, insbesondere aus der Perspektive evangelischer Ethik?
+                    </p>
+                </div>
+            </div>
+
+            <!-- Panel: Grundlagen -->
+            <div id="panel-basics" class="tab-panel p-4 animate-fadeIn" role="tabpanel">
+                <h2 class="text-3xl font-semibold text-amber-700 mb-6">Das ewige Spannungsfeld</h2>
+                <p class="text-lg text-stone-700 mb-6">
+                    Um die Debatte zu verstehen, müssen wir die zentralen Akteure definieren. Diese Sektion beleuchtet das Grundgerüst der Diskussion: das Streben der Wissenschaft nach Wissen, die Forderung der Ethik nach dem "guten" Handeln und die rechtlichen Rahmenbedingungen, die die Gesellschaft setzt.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">Naturwissenschaft</h3>
+                        <p><strong>Ziel:</strong> Erkenntnisgewinn. Sie beschreibt, 'was der Fall ist'.<br><strong>Methode:</strong> Empirisch, experimentell, wertfrei (im eigenen Anspruch).<br><strong>Fokus:</strong> Das "Machbare" und "Wissbare".</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-red-700 mb-3">Ethik</h3>
+                        <p><strong>Ziel:</strong> Gutes Handeln. Sie fragt, 'was sein soll'.<br><strong>Methode:</strong> Normativ, argumentativ, wertebasiert.<br><strong>Fokus:</strong> Das "Gerechtfertigte" und "Verantwortbare".</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3">Recht & Gesellschaft</h3>
+                        <p><strong>Ziel:</strong> Regelung des Zusammenlebens.<br><strong>Methode:</strong> Gesetze, Debatten, Gremien (z. B. Ethikrat).<br><strong>Fokus:</strong> Das "Erlaubte" und "Verbotene".</s_p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-semibold text-stone-700 mb-4">Historische Brennpunkte</h3>
+                <p class="text-lg text-stone-700 mb-4">
+                    Die Debatte ist nicht neu. In der Geschichte gab es immer wieder Punkte, an denen die Wissenschaft die Gesellschaft herausforderte:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="font-semibold text-lg">Die Atombombe</h4>
+                        <p>Das "Manhattan-Projekt" als extremes Beispiel für wissenschaftliche Erkenntnis (Kernspaltung), die direkt in eine Massenvernichtungswaffe mündete und die Forscher (z. B. Oppenheimer) in tiefe moralische Konflikte stürzte.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="font-semibold text-lg">Tierversuche</h4>
+                        <p>Das ständige Abwägen zwischen dem Erkenntnisgewinn für die Humanmedizin und dem Leid des Tieres. Es stellt die Frage nach dem moralischen Status von Lebewesen.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="font-semibold text-lg">Künstliche Intelligenz (KI)</h4>
+                        <p>Aktuelle Debatten um Autonomie, Überwachung und die unvorhersehbaren Folgen von "superintelligenten" Systemen zeigen dasselbe Muster: Das Können eilt der ethischen Reflexion voraus.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel: Fallbeispiel Genmanipulation -->
+            <div id="panel-case-study" class="tab-panel p-4 animate-fadeIn" role="tabpanel">
+                <h2 class="text-3xl font-semibold text-amber-700 mb-4">Fallbeispiel: Genmanipulation</h2>
+                <p class="text-lg text-stone-700 mb-6">
+                    Die Genmanipulation, insbesondere durch neue Werkzeuge wie CRISPR/Cas9, steht im Zentrum der ethischen Debatte. Diese "Genschere" erlaubt es, DNA-Bausteine präzise, günstig und relativ einfach zu verändern. Sie ist ein Werkzeug von revolutionärer Kraft, das Segen und Fluch zugleich sein könnte.
+                </p>
+
+                <h3 class="text-2xl font-semibold text-stone-700 mb-4">Chancen vs. Risiken: Eine visuelle Abwägung</h3>
+                <p class="text-lg text-stone-700 mb-4">
+                    Die Debatte ist von Extremen geprägt. Die folgende Grafik visualisiert das wahrgenommene Potenzial von Chancen und Risiken in zentralen Anwendungsbereichen.
+                </p>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                    <div class="chart-container">
+                        <canvas id="geneChart"></canvas>
+                    </div>
+                </div>
+                
+                <h3 class="text-2xl font-semibold text-stone-700 mt-8 mb-4">Ethische Differenzierung: Worüber sprechen wir?</h3>
+                <p class="text-lg text-stone-700 mb-4">
+                    Nicht jede Genmanipulation ist ethisch gleich zu bewerten. Die moralische Relevanz ändert sich drastisch, je nachdem, an wem der Eingriff vorgenommen wird. Klicken Sie auf die Bereiche, um die spezifischen ethischen Konflikte zu sehen.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <button class="diff-button bg-stone-200 hover:bg-amber-100 text-stone-800 font-semibold py-2 px-4 rounded-lg" data-target="text-pflanze">Pflanzen</button>
+                    <button class="diff-button bg-stone-200 hover:bg-amber-100 text-stone-800 font-semibold py-2 px-4 rounded-lg" data-target="text-tier">Tiere</button>
+                    <button class="diff-button bg-stone-200 hover:bg-amber-100 text-stone-800 font-semibold py-2 px-4 rounded-lg" data-target="text-mensch">Mensch (Somatisch)</button>
+                    <button class="diff-button bg-stone-200 hover:bg-amber-100 text-stone-800 font-semibold py-2 px-4 rounded-lg" data-target="text-keimbahn">Mensch (Keimbahn)</button>
+                </div>
+
+                <div id="diff-text-container" class="mt-4">
+                    <div id="text-pflanze" class="diff-text p-4 bg-white rounded-lg shadow hidden">
+                        <h4 class="text-xl font-semibold text-green-700">Pflanzen (z. B. "Grüne Gentechnik")</h4>
+                        <p><strong>Chancen:</strong> Ertragssteigerung, Resistenz gegen Schädlinge, Anpassung an Klimawandel (weniger Wasserbedarf).<br>
+                        <strong>Risiken:</strong> Verlust der Biodiversität, unklare ökologische Langzeitfolgen, Monopolmacht bei Saatgutkonzernen.<br>
+                        <strong>Ethische Bewertung:</strong> Meist als am wenigsten problematisch angesehen. Fokus liegt auf ökologischer Verantwortung und globaler Gerechtigkeit (Verteilung). Aus evangelischer Sicht: Teil des Auftrags "Bebauen und Bewahren"?</p>
+                    </div>
+                    <div id="text-tier" class="diff-text p-4 bg-white rounded-lg shadow hidden">
+                        <h4 class="text-xl font-semibold text-blue-700">Tiere</h4>
+                        <p><strong>Chancen:</strong> "Nutztier"-Optimierung (schnelleres Wachstum), Krankheitsresistenz, "Pharming" (Tiere als Medikamentenproduzenten), Wiederbelebung ausgestorbener Arten.<br>
+                        <strong>Risiken:</strong> Würde des Tieres (Mitgeschöpf), Tierleid durch unvorhergesehene Effekte, ökologische Gefahren (Auswilderung).<br>
+                        <strong>Ethische Bewertung:</strong> Deutlich kritischer als bei Pflanzen. Die Leidensfähigkeit des Tieres steht im Zentrum. Evangelische Ethik betont die Verantwortung für das Mitgeschöpf.</p>
+                    </div>
+                    <div id="text-mensch" class="diff-text p-4 bg-white rounded-lg shadow hidden">
+                        <h4 class="text-xl font-semibold text-red-700">Mensch (Somatische Gentherapie)</h4>
+                        <p><strong>Definition:</strong> Veränderung von Körperzellen eines geborenen Menschen. Die Änderungen sind NICHT vererbbar.<br>
+                        <strong>Chancen:</strong> Heilung schwerer Erbkrankheiten (z. B. Sichelzellanämie, Muskeldystrophie), Krebstherapien.<br>
+                        <strong>Risiken:</strong> Medizinische Nebenwirkungen, hohe Kosten (soziale Ungleichheit), Abgrenzung zur "Verbesserung" (Enhancement).<br>
+                        <strong>Ethische Bewertung:</strong> Wird bei klarem therapeutischem Ziel (Heilung) und nach strenger Prüfung (Nutzen-Risiko-Abwägung) mehrheitlich als ethisch legitim oder sogar geboten angesehen.</p>
+                    </div>
+                    <div id="text-keimbahn" class="diff-text p-4 bg-white rounded-lg shadow hidden">
+                        <h4 class="text-xl font-semibold text-purple-800">Mensch (Keimbahntherapie)</h4>
+                        <p><strong>Definition:</strong> Veränderung von Eizellen, Spermien oder Embryonen. Die Änderungen sind an ALLE Nachkommen vererbbar.<br>
+                        <strong>Chancen:</strong> "Ausrottung" von Erbkrankheiten in einer Familie.<br>
+                        <strong>Risiken:</strong> Unumkehrbarkeit, unvorhersehbare Langzeitfolgen für den Genpool, "Designer-Babys", Spaltung der Gesellschaft in "Optimierte" und "Natürliche", fundamentaler Eingriff in die menschliche Natur.<br>
+                        <strong>Ethische Bewertung:</strong> International weitgehend geächtet (in Deutschland durch das Embryonenschutzgesetz verboten). Dies wird als die "absolute rote Linie" gesehen, da es die Grundlagen des Menschseins und die Autonomie zukünftiger Generationen betrifft.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel: Perspektiven -->
+            <div id="panel-perspectives" class="tab-panel p-4 animate-fadeIn" role="tabpanel">
+                <h2 class="text-3xl font-semibold text-amber-700 mb-6">Ethische Wegweiser: Die evangelische Perspektive</h2>
+                <p class="text-lg text-stone-700 mb-6">
+                    Wie bewerten wir die Chancen und Risiken? Die evangelische Theologie bietet keine fertigen Antworten, aber ein starkes Fundament: das Menschenbild. Der Mensch ist nicht der Schöpfer seiner selbst, sondern Geschöpf und Ebenbild Gottes. Daraus leitet sich eine doppelte Verantwortung ab.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-stone-700 mb-3">Gottebenbildlichkeit & Würde</h3>
+                        <p>Jeder Mensch hat eine unantastbare Würde, die ihm von Gott zugesprochen ist – unabhängig von seiner Leistung, Gesundheit oder genetischen Ausstattung. Diese Würde verbietet es, den Menschen zum Objekt oder zum "Material" für Forschungszwecke zu degradieren. Ein Eingriff in die Keimbahn, der den Menschen "optimieren" will, greift diese zugesprochene Würde an.</p>
+                        <p class="mt-2"><strong>Bibelstelle:</strong> 
+                            <a href="#" class="bible-link text-amber-700 hover:underline" data-title="Psalm 8, 5-7" data-text="Was ist der Mensch, dass du seiner gedenkst, und des Menschen Kind, dass du dich seiner annimmst? Du hast ihn wenig niedriger gemacht als Gott, mit Ehre und Herrlichkeit hast du ihn gekrönt. Du hast ihn zum Herrn gemacht über deiner Hände Werk, alles hast du unter seine Füße getan.">Psalm 8</a>
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-stone-700 mb-3">Bewahrung der Schöpfung</h3>
+                        <p>Der Mensch hat den Auftrag, die Erde zu "bebauen und zu bewahren". Dies ist kein Freibrief zur Ausbeutung, sondern ein Mandat zur Verantwortung. Forschung, die heilt (z.B. somatische Gentherapie), kann als Teil dieses Auftrags verstanden werden. Forschung, die die Schöpfung (z.B. Ökosysteme) gefährdet oder den Menschen "neu schaffen" will (Keimbahn), überschreitet die Grenze zur Anmaßung (Hybris).</p>
+                        <p class="mt-2"><strong>Bibelstelle:</strong> 
+                            <a href="#" class="bible-link text-amber-700 hover:underline" data-title="1. Mose 1, 26-28" data-text="Und Gott sprach: Lasset uns Menschen machen, ein Bild, das uns gleich sei, die da herrschen über die Fische im Meer und über die Vögel unter dem Himmel und über das Vieh und über alle Tiere des Feldes und über alles Gewürm, das auf Erden kriecht. Und Gott schuf den Menschen zu seinem Bilde, zum Bilde Gottes schuf er ihn; und schuf sie als Mann und Weib. Und Gott segnete sie und sprach zu ihnen: Seid fruchtbar und mehret euch und füllet die Erde und machet sie euch untertan...">1. Mose 1,26-28</a>
+                        </p>
+                    </div>
+                </div>
+                <p class="text-lg text-stone-700 mb-6">
+                    Die Evangelische Kirche in Deutschland (EKD) betont in ihren Stellungnahmen (z.B. zu Bioethik) das "Ja" zur Forschung, die dem Leben dient, aber ein klares "Nein" zur Instrumentalisierung von menschlichem Leben (z.B. verbrauchende Embryonenforschung) und zu Eingriffen in die menschliche Keimbahn.
+                </p>
+                
+                <h3 class="text-2xl font-semibold text-stone-700 mt-8 mb-4">Vergleich ethischer Ansätze</h3>
+                <p class="text-lg text-stone-700 mb-4">
+                    Die evangelische Sicht ist nur eine von vielen. Andere ethische Modelle kommen teils zu ähnlichen, teils zu völlig anderen Schlüssen.
+                </p>
+                <div class="overflow-x-auto bg-white rounded-lg shadow">
+                    <table class="w-full text-left">
+                        <thead class="bg-stone-100">
+                            <tr>
+                                <th class="p-4 font-semibold">Ansatz</th>
+                                <th class="p-4 font-semibold">Grundprinzip</th>
+                                <th class="p-4 font-semibold">Anwendung auf Gen-Ethik</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-200">
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-medium">Evangelische Ethik</td>
+                                <td class="p-4">Würde als zugesprochene (Gottebenbildlichkeit). Verantwortung für Schöpfung.</td>
+                                <td class="p-4">Sehr kritisch bei Keimbahn (Verfügung über Menschsein). Positiver bei somatischer Therapie (Heilungsauftrag).</td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-medium">Utilitarismus (Peter Singer)</td>
+                                <td class="p-4">Maximierung des Glücks / Minimierung des Leids für die "größte Zahl". (Präferenz-Utilitarismus)</td>
+                                <td class="p-4">Könnte Keimbahneingriffe befürworten, wenn sie langfristig mehr Leid (durch Erbkrankheiten) verhindern als sie schaffen. Würde ist an Eigenschaften (z.B. Selbstbewusstsein) gebunden.</td>
+                            </tr>
+                            <tr class="hover:bg-stone-50">
+                                <td class="p-4 font-medium">Verantwortungsethik (Hans Jonas)</td>
+                                <td class="p-4">"Handle so, dass die Wirkungen deiner Handlung verträglich sind mit der Permanenz echten menschlichen Lebens auf Erden." ("Heuristik der Furcht")</td>
+                                <td class="p-4">Extrem vorsichtig. Bei unumkehrbaren, globalen Risiken (wie Keimbahn-Eingriffen) muss die "Unheilsprognose" der "Heilsprognose" vorgezogen werden. Im Zweifel: Dagegen.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Panel: Fazit & Ausblick -->
+            <div id="panel-conclusion" class="tab-panel p-4 animate-fadeIn" role="tabpanel">
+                <h2 class="text-3xl font-semibold text-amber-700 mb-4">Wo verläuft die Grenze?</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    Die Naturwissenschaft selbst liefert uns keine ethischen Grenzen. Sie sagt uns, was wir tun *können*, nicht, was wir tun *sollten*. Die Grenze muss von der Gesellschaft, von der Ethik und – für den gläubigen Menschen – von seinem Verständnis von Gott und der Welt gezogen werden.
+                </p>
+                <p class="text-lg text-stone-700 mb-4">
+                    Eine klare rote Linie verläuft dort, wo der Mensch zum Objekt gemacht wird und seine von Gott gegebene Würde zur Disposition steht. Das ist bei Eingriffen in die menschliche Keimbahn der Fall. Hier wird nicht nur ein Individuum verändert, sondern die Definition des Menschseins selbst und die Autonomie zukünftiger Generationen aufs Spiel gesetzt.
+                </p>
+                <p class="text-lg text-stone-700 mb-4">
+                    Im Bereich der somatischen Gentherapie (Heilung) und der Forschung an Pflanzen und Tieren ist die Grenze fließender. Hier gilt es, im Sinne einer evangelischen Verantwortungsethik, sorgfältig abzuwägen: Dient es dem Leben? Respektiert es die Mitgeschöpflichkeit? Sind die Risiken (auch die sozialen, wie Ungleichheit) verantwortbar?
+                </p>
+                
+                <h3 class="text-2xl font-semibold text-stone-700 mt-8 mb-4">Ausblick: Die nächsten Herausforderungen</h3>
+                <p class="text-lg text-stone-700 mb-4">
+                    Die Debatte ist nie zu Ende. Die Genmanipulation ist nur ein Vorgeschmack auf das, was uns mit der rasanten Entwicklung von <strong>Künstlicher Intelligenz</strong> (Definition von Bewusstsein) und <strong>Synthetischer Biologie</strong> (Schaffung künstlichen Lebens) bevorsteht.
+                </p>
+                <div class="mt-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-lg">
+                    <p class="text-xl font-medium text-amber-900">
+                        Die zentrale Herausforderung bleibt dieselbe: Unsere ethische Reflexion und unsere moralische Reife müssen schneller wachsen als unsere technologischen Fähigkeiten. Die Wissenschaft braucht das ständige, kritische und wertebasierte Gespräch mit der Gesellschaft – und für den Christen das Gebet um Weisheit.
+                    </p>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-stone-300">
+                    <h4 class="text-xl font-semibold text-stone-700 mb-3">Zitate & Denkanstöße</h4>
+                    <blockquote class="italic text-stone-600 border-l-4 border-stone-300 pl-4 mb-4">
+                        "Die Wissenschaft kann die Mittel zur Vernichtung segnen oder verfluchen. Es ist ihre Wahl." – Robert Oppenheimer
+                    </blockquote>
+                    <blockquote class="italic text-stone-600 border-l-4 border-stone-300 pl-4">
+                        "Nicht alles, was wir können, dürfen wir auch tun." – (Häufig zugeschieber Grundsatz, u.a. Helmut Schmidt)
+                    </blockquote>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const tabs = document.querySelectorAll('.tab-button');
+            const panels = document.querySelectorAll('.tab-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-target');
+
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    panels.forEach(p => p.classList.remove('active'));
+                    document.getElementById(target).classList.add('active');
+                });
+            });
+
+            const diffButtons = document.querySelectorAll('.diff-button');
+            const diffTexts = document.querySelectorAll('.diff-text');
+
+            diffButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const target = button.getAttribute('data-target');
+
+                    diffTexts.forEach(text => text.classList.add('hidden'));
+                    
+                    const targetText = document.getElementById(target);
+                    if (targetText) {
+                        targetText.classList.remove('hidden');
+                    }
+
+                    diffButtons.forEach(btn => btn.classList.remove('bg-amber-200'));
+                    button.classList.add('bg-amber-200');
+                });
+            });
+
+            const bibleLinks = document.querySelectorAll('.bible-link');
+            const modal = document.getElementById('bibleModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalText = document.getElementById('modalText');
+            const closeModal = document.getElementById('closeModal');
+
+            bibleLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const title = link.getAttribute('data-title');
+                    const text = link.getAttribute('data-text');
+                    
+                    modalTitle.textContent = title;
+                    modalText.textContent = text;
+                    modal.classList.remove('hidden');
+                });
+            });
+
+            const closeBibleModal = () => {
+                modal.classList.add('hidden');
+            }
+
+            closeModal.addEventListener('click', closeBibleModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeBibleModal();
+                }
+            });
+
+            const ctx = document.getElementById('geneChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Medizin (Heilung)', 'Medizin (Enhancement)', 'Landwirtschaft', 'Ökosysteme (De-Extinction)'],
+                        datasets: [
+                            {
+                                label: 'Chancen (Potenzial)',
+                                data: [10, 7, 8, 5],
+                                backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Risiken (Potenzial)',
+                                data: [5, 10, 7, 9],
+                                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                stacked: false,
+                                title: {
+                                    display: true,
+                                    text: 'Wahrgenommenes Potenzial (Illustrativ)'
+                                }
+                            },
+                            y: {
+                                stacked: false
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Abwägung von Chancen und Risiken der Gentechnik',
+                                font: {
+                                    size: 18
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+
+            const fadeInElements = document.querySelectorAll('.animate-fadeIn');
+            fadeInElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transition = 'opacity 0.5s ease-in-out';
+                setTimeout(() => {
+                    el.style.opacity = 1;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
