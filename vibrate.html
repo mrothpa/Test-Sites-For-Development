@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibrationstest</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #111;
+            color: #eee;
+        }
+
+        button {
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            background: #4CAF50;
+            color: black;
+            cursor: pointer;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+<button onclick="vibrate()">Vibrieren</button>
+
+<script>
+    function vibrate() {
+        if ("vibrate" in navigator) {
+            // 200 ms vibrieren
+            navigator.vibrate(200);
+
+            // Alternativ ein Muster:
+            // navigator.vibrate([100, 50, 100, 50, 300]);
+        } else {
+            alert("Vibration wird von diesem Gerät/Browser nicht unterstützt.");
+        }
+    }
+</script>
+
+</body>
+</html>
