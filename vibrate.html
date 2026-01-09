@@ -39,10 +39,10 @@
     function vibrate() {
         if ("vibrate" in navigator) {
             // 200 ms vibrieren
-            navigator.vibrate(200);
+            // navigator.vibrate(200);
 
             // Alternativ ein Muster:
-            // navigator.vibrate([100, 50, 100, 50, 300]);
+            navigator.vibrate([100, 50, 100, 50, 300]);
         } else {
             alert("Vibration wird von diesem Gerät/Browser nicht unterstützt.");
         }
